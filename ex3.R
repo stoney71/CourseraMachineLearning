@@ -1,16 +1,15 @@
 setwd("~/RFolder/CourseraMachineLearning")
 
-### May need these packages later
-# library(ggplot2)
-# library(dplyr)
+### Load these packages
+library(nnet)
 
-
-### Load the data
+### Part 1.1 Load the Dataset
 
 X <- as.matrix(read.table("./ex3_train_X.csv", header=FALSE, sep = ","))
 y <- as.matrix(read.table("./ex3_train_y.csv", header=FALSE, sep = ","))
 
 
+### Part 1.2 Visualising the Data
 # randomly select 100 digits to display
 
 sel <- X[sample(1:nrow(X), 100), ]
@@ -26,3 +25,20 @@ for (i in 1:100) {
         box()
 }
 
+### Part 2 Neural Networks
+# The exercise loads a pre-trained set of weights (theta) and uses the 5000 observations
+# of X to test against that. Instead, here we will use X and divide it into a train and
+# test set. 
+
+df <- data.frame(X, as.factor(y))
+names(df)[401] <- "y"
+
+index <- c(sample(1:5000, 4000))
+train <- df[index,]
+test <- df[-index,]
+
+mod <- nnet(y ~ ., train, maxit = 300, size = 25, MaxNWts = 10500)
+
+pred <- as.integer(predict(mod, test, type = "class"))
+
+paste("Training Set Accuracy:", sum(pred == test$y) / nrow(test) * 100, "%")
